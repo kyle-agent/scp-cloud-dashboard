@@ -1,0 +1,592 @@
+[
+  {
+    "key": "aimlops-platform",
+    "name": "AI & MLOps Platform",
+    "category": "AI-ML",
+    "healthUrl": "https://aimlops-platform.kr-west1.e.samsungsdscloud.com",
+    "icon": "🧠",
+    "color": "#d946ef",
+    "apiCount": 22,
+    "description": ""
+  },
+  {
+    "key": "apigateway",
+    "name": "API Gateway",
+    "category": "Application Service",
+    "healthUrl": "https://apigateway.kr-west1.e.samsungsdscloud.com",
+    "icon": "⚙️",
+    "color": "#fb923c",
+    "apiCount": 182,
+    "description": ""
+  },
+  {
+    "key": "archivestorage",
+    "name": "Archive Storage",
+    "category": "Storage",
+    "healthUrl": "https://archivestorage.kr-west1.e.samsungsdscloud.com",
+    "icon": "💾",
+    "color": "#a78bfa",
+    "apiCount": 44,
+    "description": ""
+  },
+  {
+    "key": "backup",
+    "name": "Backup",
+    "category": "Storage",
+    "healthUrl": "https://backup.kr-west1.e.samsungsdscloud.com",
+    "icon": "💾",
+    "color": "#a78bfa",
+    "apiCount": 91,
+    "description": ""
+  },
+  {
+    "key": "baremetal",
+    "name": "Bare Metal",
+    "category": "Compute",
+    "healthUrl": "https://baremetal.kr-west1.e.samsungsdscloud.com",
+    "icon": "🖥️",
+    "color": "#60a5fa",
+    "apiCount": 30,
+    "description": ""
+  },
+  {
+    "key": "baremetal-blockstorage",
+    "name": "Block Storage (BM)",
+    "category": "Storage",
+    "healthUrl": "https://baremetal-blockstorage.kr-west1.e.samsungsdscloud.com",
+    "icon": "💾",
+    "color": "#a78bfa",
+    "apiCount": 160,
+    "description": ""
+  },
+  {
+    "key": "billingplan",
+    "name": "Billing Plan",
+    "category": "Financial Management",
+    "healthUrl": "https://billingplan.kr-west1.e.samsungsdscloud.com",
+    "icon": "💰",
+    "color": "#4ade80",
+    "apiCount": 10,
+    "description": ""
+  },
+  {
+    "key": "budget",
+    "name": "Budget",
+    "category": "Financial Management",
+    "healthUrl": "https://budget.kr-west1.e.samsungsdscloud.com",
+    "icon": "💰",
+    "color": "#4ade80",
+    "apiCount": 5,
+    "description": ""
+  },
+  {
+    "key": "cachestore",
+    "name": "CacheStore(DBaaS)",
+    "category": "Database",
+    "healthUrl": "https://cachestore.kr-west1.e.samsungsdscloud.com",
+    "icon": "🗄️",
+    "color": "#f87171",
+    "apiCount": 32,
+    "description": ""
+  },
+  {
+    "key": "cdn",
+    "name": "Global CDN",
+    "category": "Networking",
+    "healthUrl": "https://cdn.kr-west1.e.samsungsdscloud.com",
+    "icon": "🌐",
+    "color": "#fbbf24",
+    "apiCount": 9,
+    "description": ""
+  },
+  {
+    "key": "certificatemanager",
+    "name": "Certificate Manager",
+    "category": "Security",
+    "healthUrl": "https://certificatemanager.kr-west1.e.samsungsdscloud.com",
+    "icon": "🔒",
+    "color": "#e879f9",
+    "apiCount": 14,
+    "description": ""
+  },
+  {
+    "key": "cloud-ml",
+    "name": "Cloud ML",
+    "category": "AI-ML",
+    "healthUrl": "https://cloud-ml.kr-west1.e.samsungsdscloud.com",
+    "icon": "🧠",
+    "color": "#d946ef",
+    "apiCount": 9,
+    "description": ""
+  },
+  {
+    "key": "cloudcontrol",
+    "name": "Cloud Control",
+    "category": "Management",
+    "healthUrl": "https://cloudcontrol.kr-west1.e.samsungsdscloud.com",
+    "icon": "⚙️",
+    "color": "#6ee7b7",
+    "apiCount": 28,
+    "description": ""
+  },
+  {
+    "key": "cloudmonitoring",
+    "name": "Cloud Monitoring",
+    "category": "Management",
+    "healthUrl": "https://cloudmonitoring.kr-west1.e.samsungsdscloud.com",
+    "icon": "⚙️",
+    "color": "#6ee7b7",
+    "apiCount": 18,
+    "description": ""
+  },
+  {
+    "key": "configinspection",
+    "name": "Config Inspection",
+    "category": "Security",
+    "healthUrl": "https://configinspection.kr-west1.e.samsungsdscloud.com",
+    "icon": "🔒",
+    "color": "#e879f9",
+    "apiCount": 14,
+    "description": ""
+  },
+  {
+    "key": "costexplorer",
+    "name": "Cost Explorer",
+    "category": "Financial Management",
+    "healthUrl": "https://costexplorer.kr-west1.e.samsungsdscloud.com",
+    "icon": "💰",
+    "color": "#4ade80",
+    "apiCount": 3,
+    "description": ""
+  },
+  {
+    "key": "data-flow",
+    "name": "Data Flow",
+    "category": "Data Analytics",
+    "healthUrl": "https://data-flow.kr-west1.e.samsungsdscloud.com",
+    "icon": "📊",
+    "color": "#c084fc",
+    "apiCount": 34,
+    "description": ""
+  },
+  {
+    "key": "data-ops",
+    "name": "Data Ops",
+    "category": "Data Analytics",
+    "healthUrl": "https://data-ops.kr-west1.e.samsungsdscloud.com",
+    "icon": "📊",
+    "color": "#c084fc",
+    "apiCount": 34,
+    "description": ""
+  },
+  {
+    "key": "devopsservice",
+    "name": "DevOps Service",
+    "category": "DevOps Tools",
+    "healthUrl": "https://devopsservice.kr-west1.e.samsungsdscloud.com",
+    "icon": "🚀",
+    "color": "#38bdf8",
+    "apiCount": 6,
+    "description": ""
+  },
+  {
+    "key": "direct-connect",
+    "name": "Direct Connect",
+    "category": "Networking",
+    "healthUrl": "https://direct-connect.kr-west1.e.samsungsdscloud.com",
+    "icon": "🌐",
+    "color": "#fbbf24",
+    "apiCount": 16,
+    "description": ""
+  },
+  {
+    "key": "dns",
+    "name": "Cloud DNS",
+    "category": "Networking",
+    "healthUrl": "https://dns.kr-west1.e.samsungsdscloud.com",
+    "icon": "🌐",
+    "color": "#fbbf24",
+    "apiCount": 64,
+    "description": ""
+  },
+  {
+    "key": "epas",
+    "name": "EPAS(DBaaS)",
+    "category": "Database",
+    "healthUrl": "https://epas.kr-west1.e.samsungsdscloud.com",
+    "icon": "🗄️",
+    "color": "#f87171",
+    "apiCount": 94,
+    "description": ""
+  },
+  {
+    "key": "eventstreams",
+    "name": "Event Streams",
+    "category": "Data Analytics",
+    "healthUrl": "https://eventstreams.kr-west1.e.samsungsdscloud.com",
+    "icon": "📊",
+    "color": "#c084fc",
+    "apiCount": 48,
+    "description": ""
+  },
+  {
+    "key": "filestorage",
+    "name": "File Storage",
+    "category": "Storage",
+    "healthUrl": "https://filestorage.kr-west1.e.samsungsdscloud.com",
+    "icon": "💾",
+    "color": "#a78bfa",
+    "apiCount": 42,
+    "description": ""
+  },
+  {
+    "key": "firewall",
+    "name": "Firewall",
+    "category": "Networking",
+    "healthUrl": "https://firewall.kr-west1.e.samsungsdscloud.com",
+    "icon": "🌐",
+    "color": "#fbbf24",
+    "apiCount": 8,
+    "description": ""
+  },
+  {
+    "key": "gslb",
+    "name": "Gslb",
+    "category": "Networking",
+    "healthUrl": "https://gslb.kr-west1.e.samsungsdscloud.com",
+    "icon": "🌐",
+    "color": "#fbbf24",
+    "apiCount": 18,
+    "description": ""
+  },
+  {
+    "key": "iam",
+    "name": "IAM",
+    "category": "Management",
+    "healthUrl": "https://iam.kr-west1.e.samsungsdscloud.com",
+    "icon": "⚙️",
+    "color": "#6ee7b7",
+    "apiCount": 247,
+    "description": ""
+  },
+  {
+    "key": "iam-identity-center",
+    "name": "ID Center",
+    "category": "Management",
+    "healthUrl": "https://iam-identity-center.kr-west1.e.samsungsdscloud.com",
+    "icon": "⚙️",
+    "color": "#6ee7b7",
+    "apiCount": 125,
+    "description": ""
+  },
+  {
+    "key": "kms",
+    "name": "Key Management Service",
+    "category": "Security",
+    "healthUrl": "https://kms.kr-west1.e.samsungsdscloud.com",
+    "icon": "🔒",
+    "color": "#e879f9",
+    "apiCount": 57,
+    "description": ""
+  },
+  {
+    "key": "loadbalancer",
+    "name": "Load Balancer",
+    "category": "Networking",
+    "healthUrl": "https://loadbalancer.kr-west1.e.samsungsdscloud.com",
+    "icon": "🌐",
+    "color": "#fbbf24",
+    "apiCount": 95,
+    "description": ""
+  },
+  {
+    "key": "loggingaudit",
+    "name": "Logging & Audit",
+    "category": "Management",
+    "healthUrl": "https://loggingaudit.kr-west1.e.samsungsdscloud.com",
+    "icon": "⚙️",
+    "color": "#6ee7b7",
+    "apiCount": 20,
+    "description": ""
+  },
+  {
+    "key": "mariadb",
+    "name": "MariaDB(DBaaS)",
+    "category": "Database",
+    "healthUrl": "https://mariadb.kr-west1.e.samsungsdscloud.com",
+    "icon": "🗄️",
+    "color": "#f87171",
+    "apiCount": 92,
+    "description": ""
+  },
+  {
+    "key": "multinodegpucluster",
+    "name": "Multi-node GPU Cluster",
+    "category": "Compute",
+    "healthUrl": "https://multinodegpucluster.kr-west1.e.samsungsdscloud.com",
+    "icon": "🖥️",
+    "color": "#60a5fa",
+    "apiCount": 16,
+    "description": ""
+  },
+  {
+    "key": "mysql",
+    "name": "MySQL(DBaaS)",
+    "category": "Database",
+    "healthUrl": "https://mysql.kr-west1.e.samsungsdscloud.com",
+    "icon": "🗄️",
+    "color": "#f87171",
+    "apiCount": 90,
+    "description": ""
+  },
+  {
+    "key": "network-logging",
+    "name": "Network Logging",
+    "category": "Management",
+    "healthUrl": "https://network-logging.kr-west1.e.samsungsdscloud.com",
+    "icon": "⚙️",
+    "color": "#6ee7b7",
+    "apiCount": 4,
+    "description": ""
+  },
+  {
+    "key": "organization",
+    "name": "Organization",
+    "category": "Management",
+    "healthUrl": "https://organization.kr-west1.e.samsungsdscloud.com",
+    "icon": "⚙️",
+    "color": "#6ee7b7",
+    "apiCount": 109,
+    "description": ""
+  },
+  {
+    "key": "parallel-filestorage",
+    "name": "Parallel Filestorage",
+    "category": "Storage",
+    "healthUrl": "https://parallel-filestorage.kr-west1.e.samsungsdscloud.com",
+    "icon": "💾",
+    "color": "#a78bfa",
+    "apiCount": 11,
+    "description": ""
+  },
+  {
+    "key": "postgresql",
+    "name": "PostgreSQL(DBaaS)",
+    "category": "Database",
+    "healthUrl": "https://postgresql.kr-west1.e.samsungsdscloud.com",
+    "icon": "🗄️",
+    "color": "#f87171",
+    "apiCount": 94,
+    "description": ""
+  },
+  {
+    "key": "pricing",
+    "name": "Pricing",
+    "category": "Financial Management",
+    "healthUrl": "https://pricing.kr-west1.e.samsungsdscloud.com",
+    "icon": "💰",
+    "color": "#4ade80",
+    "apiCount": 3,
+    "description": ""
+  },
+  {
+    "key": "product",
+    "name": "Product",
+    "category": "Platform",
+    "healthUrl": "https://product.kr-west1.e.samsungsdscloud.com",
+    "icon": "🏗️",
+    "color": "#94a3b8",
+    "apiCount": 4,
+    "description": ""
+  },
+  {
+    "key": "queueservice",
+    "name": "Queue Service",
+    "category": "Application Service",
+    "healthUrl": "https://queueservice.kr-west1.e.samsungsdscloud.com",
+    "icon": "⚙️",
+    "color": "#fb923c",
+    "apiCount": 19,
+    "description": ""
+  },
+  {
+    "key": "quick-query",
+    "name": "Quick Query",
+    "category": "Data Analytics",
+    "healthUrl": "https://quick-query.kr-west1.e.samsungsdscloud.com",
+    "icon": "📊",
+    "color": "#c084fc",
+    "apiCount": 24,
+    "description": ""
+  },
+  {
+    "key": "quota",
+    "name": "Quota Service",
+    "category": "Management",
+    "healthUrl": "https://quota.kr-west1.e.samsungsdscloud.com",
+    "icon": "⚙️",
+    "color": "#6ee7b7",
+    "apiCount": 16,
+    "description": ""
+  },
+  {
+    "key": "resourcemanager",
+    "name": "Resource Manager",
+    "category": "Management",
+    "healthUrl": "https://resourcemanager.kr-west1.e.samsungsdscloud.com",
+    "icon": "⚙️",
+    "color": "#6ee7b7",
+    "apiCount": 27,
+    "description": ""
+  },
+  {
+    "key": "scf",
+    "name": "Cloud Functions",
+    "category": "Compute",
+    "healthUrl": "https://scf.kr-west1.e.samsungsdscloud.com",
+    "icon": "🖥️",
+    "color": "#60a5fa",
+    "apiCount": 107,
+    "description": ""
+  },
+  {
+    "key": "scr",
+    "name": "Container Registry",
+    "category": "Container",
+    "healthUrl": "https://scr.kr-west1.e.samsungsdscloud.com",
+    "icon": "📦",
+    "color": "#34d399",
+    "apiCount": 78,
+    "description": ""
+  },
+  {
+    "key": "searchengine",
+    "name": "Search Engine",
+    "category": "Data Analytics",
+    "healthUrl": "https://searchengine.kr-west1.e.samsungsdscloud.com",
+    "icon": "📊",
+    "color": "#c084fc",
+    "apiCount": 26,
+    "description": ""
+  },
+  {
+    "key": "secretsmanager",
+    "name": "Secretsmanager",
+    "category": "Security",
+    "healthUrl": "https://secretsmanager.kr-west1.e.samsungsdscloud.com",
+    "icon": "🔒",
+    "color": "#e879f9",
+    "apiCount": 28,
+    "description": ""
+  },
+  {
+    "key": "secretvault",
+    "name": "Secret Vault",
+    "category": "Security",
+    "healthUrl": "https://secretvault.kr-west1.e.samsungsdscloud.com",
+    "icon": "🔒",
+    "color": "#e879f9",
+    "apiCount": 5,
+    "description": ""
+  },
+  {
+    "key": "security-group",
+    "name": "Security Group",
+    "category": "Networking",
+    "healthUrl": "https://security-group.kr-west1.e.samsungsdscloud.com",
+    "icon": "🌐",
+    "color": "#fbbf24",
+    "apiCount": 9,
+    "description": ""
+  },
+  {
+    "key": "servicewatch",
+    "name": "ServiceWatch",
+    "category": "Management",
+    "healthUrl": "https://servicewatch.kr-west1.e.samsungsdscloud.com",
+    "icon": "⚙️",
+    "color": "#6ee7b7",
+    "apiCount": 70,
+    "description": ""
+  },
+  {
+    "key": "ske",
+    "name": "Kubernetes Engine",
+    "category": "Container",
+    "healthUrl": "https://ske.kr-west1.e.samsungsdscloud.com",
+    "icon": "📦",
+    "color": "#34d399",
+    "apiCount": 66,
+    "description": ""
+  },
+  {
+    "key": "sqlserver",
+    "name": "SQL Server(DBaaS)",
+    "category": "Database",
+    "healthUrl": "https://sqlserver.kr-west1.e.samsungsdscloud.com",
+    "icon": "🗄️",
+    "color": "#f87171",
+    "apiCount": 38,
+    "description": ""
+  },
+  {
+    "key": "sts",
+    "name": "STS",
+    "category": "Platform",
+    "healthUrl": "https://sts.kr-west1.e.samsungsdscloud.com",
+    "icon": "🏗️",
+    "color": "#94a3b8",
+    "apiCount": 6,
+    "description": ""
+  },
+  {
+    "key": "support",
+    "name": "Support Center",
+    "category": "Management",
+    "healthUrl": "https://support.kr-west1.e.samsungsdscloud.com",
+    "icon": "⚙️",
+    "color": "#6ee7b7",
+    "apiCount": 4,
+    "description": ""
+  },
+  {
+    "key": "vertica",
+    "name": "Vertica(DBaaS)",
+    "category": "Data Analytics",
+    "healthUrl": "https://vertica.kr-west1.e.samsungsdscloud.com",
+    "icon": "📊",
+    "color": "#c084fc",
+    "apiCount": 23,
+    "description": ""
+  },
+  {
+    "key": "virtualserver",
+    "name": "Virtual Server",
+    "category": "Compute",
+    "healthUrl": "https://virtualserver.kr-west1.e.samsungsdscloud.com",
+    "icon": "🖥️",
+    "color": "#60a5fa",
+    "apiCount": 333,
+    "description": ""
+  },
+  {
+    "key": "vpc",
+    "name": "VPC",
+    "category": "Networking",
+    "healthUrl": "https://vpc.kr-west1.e.samsungsdscloud.com",
+    "icon": "🌐",
+    "color": "#fbbf24",
+    "apiCount": 241,
+    "description": ""
+  },
+  {
+    "key": "vpn",
+    "name": "VPN",
+    "category": "Networking",
+    "healthUrl": "https://vpn.kr-west1.e.samsungsdscloud.com",
+    "icon": "🌐",
+    "color": "#fbbf24",
+    "apiCount": 20,
+    "description": ""
+  }
+]

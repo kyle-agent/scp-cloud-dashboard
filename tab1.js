@@ -1,112 +1,40 @@
 // ======== TAB 1: API 운영 현황 ========
+// Data sources: data/services.json + data/metrics.json
 
-var charts={};
-var rng=function(seed){var s=seed;return function(){s=(s*16807)%2147483647;return(s-1)/2147483646;};};
+var charts={}, healthData=null, metricsData=null;
+
 function E(s){return document.querySelector(s);}
 function EA(s){return document.querySelectorAll(s);}
 function formatNum(n){if(n>=1e6)return(n/1e6).toFixed(1)+'M';if(n>=1e3)return(n/1e3).toFixed(1)+'K';return n.toString();}
 function clockFn(){var n=new Date();E('#clock').textContent='업데이트: '+n.toLocaleString('ko-KR');}
 clockFn();setInterval(clockFn,1000);
 
-var CAT_COLORS = {
- 'Compute':'#60a5fa','Storage':'#a78bfa','Container':'#34d399',
- 'Networking':'#fbbf24','Database':'#f87171','Data Analytics':'#c084fc',
- 'Application Service':'#fb923c','Security':'#e879f9','Cloud Control':'#6ee7b7',
- 'Financial Management':'#4ade80','DevOps':'#38bdf8','AI-ML':'#d946ef',
- 'Platform':'#94a3b8','Management':'#6ee7b7','DevOps Tools':'#38bdf8'
-};
-var CAT_ICONS = {
- 'Compute':'🖥️','Storage':'💾','Container':'📦',
- 'Networking':'🌐','Database':'🗄️','Data Analytics':'📊',
- 'Application Service':'⚙️','Security':'🔒','Cloud Control':'📡',
- 'AI-ML':'🧠','Financial Management':'💰','DevOps Tools':'🚀',
- 'Platform':'🏗️','Management':'⚙️'
-};
-
 // ===================================================================
-// SERVICE HEALTH ENDPOINTS (실제 kr-west1 서비스 URL)
+// Load all data from JSON files
 // ===================================================================
-var HEALTH_ENDPOINTS = [
- // Compute
- {svc:'Virtual Server',cat:'Compute',url:'https://virtualserver.kr-west1.e.samsungsdscloud.com'},
- {svc:'Bare Metal',cat:'Compute',url:'https://baremetal.kr-west1.e.samsungsdscloud.com'},
- {svc:'Cloud Functions',cat:'Compute',url:'https://scf.kr-west1.e.samsungsdscloud.com'},
- {svc:'Multi-node GPU Cluster',cat:'Compute',url:'https://multinodegpucluster.kr-west1.e.samsungsdscloud.com'},
- // Storage
- {svc:'Archive Storage',cat:'Storage',url:'https://archivestorage.kr-west1.e.samsungsdscloud.com'},
- {svc:'Backup',cat:'Storage',url:'https://backup.kr-west1.e.samsungsdscloud.com'},
- {svc:'Block Storage (BM)',cat:'Storage',url:'https://baremetal-blockstorage.kr-west1.e.samsungsdscloud.com'},
- {svc:'File Storage',cat:'Storage',url:'https://filestorage.kr-west1.e.samsungsdscloud.com'},
- {svc:'Block Storage',cat:'Storage',url:'https://blockstorage.kr-west1.e.samsungsdscloud.com'},
- {svc:'Object Storage',cat:'Storage',url:'https://objectstorage.kr-west1.e.samsungsdscloud.com'},
- {svc:'Parallel File Storage',cat:'Storage',url:'https://parallel-filestorage.kr-west1.e.samsungsdscloud.com'},
- // Container
- {svc:'Kubernetes Engine',cat:'Container',url:'https://ske.kr-west1.e.samsungsdscloud.com'},
- {svc:'Container Registry',cat:'Container',url:'https://scr.kr-west1.e.samsungsdscloud.com'},
- // Networking
- {svc:'VPC',cat:'Networking',url:'https://vpc.kr-west1.e.samsungsdscloud.com'},
- {svc:'Load Balancer',cat:'Networking',url:'https://loadbalancer.kr-west1.e.samsungsdscloud.com'},
- {svc:'Cloud DNS',cat:'Networking',url:'https://dns.kr-west1.e.samsungsdscloud.com'},
- {svc:'Security Group',cat:'Networking',url:'https://security-group.kr-west1.e.samsungsdscloud.com'},
- {svc:'Firewall',cat:'Networking',url:'https://firewall.kr-west1.e.samsungsdscloud.com'},
- {svc:'Direct Connect',cat:'Networking',url:'https://direct-connect.kr-west1.e.samsungsdscloud.com'},
- {svc:'VPN',cat:'Networking',url:'https://vpn.kr-west1.e.samsungsdscloud.com'},
- {svc:'Global CDN',cat:'Networking',url:'https://cdn.kr-west1.e.samsungsdscloud.com'},
- {svc:'GSLB',cat:'Networking',url:'https://gslb.kr-west1.e.samsungsdscloud.com'},
- // Database
- {svc:'EPAS(DBaaS)',cat:'Database',url:'https://epas.kr-west1.e.samsungsdscloud.com'},
- {svc:'PostgreSQL(DBaaS)',cat:'Database',url:'https://postgresql.kr-west1.e.samsungsdscloud.com'},
- {svc:'MariaDB(DBaaS)',cat:'Database',url:'https://mariadb.kr-west1.e.samsungsdscloud.com'},
- {svc:'MySQL(DBaaS)',cat:'Database',url:'https://mysql.kr-west1.e.samsungsdscloud.com'},
- {svc:'SQL Server(DBaaS)',cat:'Database',url:'https://sqlserver.kr-west1.e.samsungsdscloud.com'},
- {svc:'CacheStore(DBaaS)',cat:'Database',url:'https://cachestore.kr-west1.e.samsungsdscloud.com'},
- // Data Analytics
- {svc:'Event Streams',cat:'Data Analytics',url:'https://eventstreams.kr-west1.e.samsungsdscloud.com'},
- {svc:'Search Engine',cat:'Data Analytics',url:'https://searchengine.kr-west1.e.samsungsdscloud.com'},
- {svc:'Vertica(DBaaS)',cat:'Data Analytics',url:'https://vertica.kr-west1.e.samsungsdscloud.com'},
- {svc:'Data Flow',cat:'Data Analytics',url:'https://data-flow.kr-west1.e.samsungsdscloud.com'},
- {svc:'Data Ops',cat:'Data Analytics',url:'https://data-ops.kr-west1.e.samsungsdscloud.com'},
- {svc:'Quick Query',cat:'Data Analytics',url:'https://quick-query.kr-west1.e.samsungsdscloud.com'},
- // Application Service
- {svc:'API Gateway',cat:'Application Service',url:'https://apigateway.kr-west1.e.samsungsdscloud.com'},
- {svc:'Queue Service',cat:'Application Service',url:'https://queueservice.kr-west1.e.samsungsdscloud.com'},
- // Security
- {svc:'Key Management Service',cat:'Security',url:'https://kms.kr-west1.e.samsungsdscloud.com'},
- {svc:'Config Inspection',cat:'Security',url:'https://configinspection.kr-west1.e.samsungsdscloud.com'},
- {svc:'Certificate Manager',cat:'Security',url:'https://certificatemanager.kr-west1.e.samsungsdscloud.com'},
- {svc:'Secret Vault',cat:'Security',url:'https://secretvault.kr-west1.e.samsungsdscloud.com'},
- {svc:'Secrets Manager',cat:'Security',url:'https://secretsmanager.kr-west1.e.samsungsdscloud.com'},
- // Management
- {svc:'Cloud Monitoring',cat:'Management',url:'https://cloudmonitoring.kr-west1.e.samsungsdscloud.com'},
- {svc:'IAM',cat:'Management',url:'https://iam.kr-west1.e.samsungsdscloud.com'},
- {svc:'ID Center',cat:'Management',url:'https://iam-identity-center.kr-west1.e.samsungsdscloud.com'},
- {svc:'Logging & Audit',cat:'Management',url:'https://loggingaudit.kr-west1.e.samsungsdscloud.com'},
- {svc:'Organization',cat:'Management',url:'https://organization.kr-west1.e.samsungsdscloud.com'},
- {svc:'ServiceWatch',cat:'Management',url:'https://servicewatch.kr-west1.e.samsungsdscloud.com'},
- {svc:'Resource Manager',cat:'Management',url:'https://resourcemanager.kr-west1.e.samsungsdscloud.com'},
- {svc:'Quota Service',cat:'Management',url:'https://quota.kr-west1.e.samsungsdscloud.com'},
- {svc:'Support Center',cat:'Management',url:'https://support.kr-west1.e.samsungsdscloud.com'},
- {svc:'Network Logging',cat:'Management',url:'https://network-logging.kr-west1.e.samsungsdscloud.com'},
- {svc:'Cloud Control',cat:'Management',url:'https://cloudcontrol.kr-west1.e.samsungsdscloud.com'},
- // Financial
- {svc:'Cost Explorer',cat:'Financial Management',url:'https://costexplorer.kr-west1.e.samsungsdscloud.com'},
- {svc:'Billing Plan',cat:'Financial Management',url:'https://billingplan.kr-west1.e.samsungsdscloud.com'},
- {svc:'Budget',cat:'Financial Management',url:'https://budget.kr-west1.e.samsungsdscloud.com'},
- {svc:'Pricing',cat:'Financial Management',url:'https://pricing.kr-west1.e.samsungsdscloud.com'},
- // DevOps
- {svc:'DevOps Service',cat:'DevOps Tools',url:'https://devopsservice.kr-west1.e.samsungsdscloud.com'},
- // AI-ML
- {svc:'Cloud ML',cat:'AI-ML',url:'https://cloud-ml.kr-west1.e.samsungsdscloud.com'},
- {svc:'AI & MLOps Platform',cat:'AI-ML',url:'https://aimlops-platform.kr-west1.e.samsungsdscloud.com'},
- // Platform
- {svc:'Product',cat:'Platform',url:'https://product.kr-west1.e.samsungsdscloud.com'},
- {svc:'STS',cat:'Platform',url:'https://sts.kr-west1.e.samsungsdscloud.com'},
-];
+Promise.all([
+ C.fetchData('services'),
+ C.fetchData('metrics')
+]).then(function(results){
+ healthData=results[0];
+ metricsData=results[1];
+ 
+ // Simulate health check results
+ simulateHealth();
+ 
+ // Expose globally for tabs to share
+ window.API_SVCS=metricsData.svc;
+ window.API_EPS=metricsData.ep;
+ renderTab1();
+}).catch(function(err){
+ console.error('Failed to load data:',err);
+ E('#api-kpis').innerHTML='<p style=padding:40px;text-align:center;color:#f87171>데이터 로딩 실패: '+err.message+'</p>';
+});
 
-// Simulate health check results (since we can't actually reach internal endpoints)
-(function(){
- var sr = rng(777);
- var baseResp = {
+// Simulate health check since we can't actually reach internal endpoints
+function simulateHealth(){
+ var sr=rng(777);
+ var baseResp={
   'CacheStore(DBaaS)':18,'Global CDN':25,'Cloud DNS':28,'GSLB':29,
   'Load Balancer':33,'Security Group':31,'VPC':35,'IAM':35,
   'Cloud Functions':38,'Direct Connect':42,'Parallel File Storage':39,
@@ -128,41 +56,35 @@ var HEALTH_ENDPOINTS = [
   'Block Storage (BM)':48,'API Gateway':30,'Data Analytics':45,
   'Firewall':36,'STS':50,'Product':43,
  };
- HEALTH_ENDPOINTS.forEach(function(ep){
-  var b = baseResp[ep.svc] || 45;
-  var r = sr();
-  if(r<0.04){ep.status='down';ep.resp=0;}
-  else if(r<0.12){ep.status='degraded';ep.resp=Math.round(b*(1.5+sr()*1.5));}
-  else{ep.status='up';ep.resp=Math.round(b*(0.8+sr()*0.4));}
- });
-})();
+ if(healthData&&healthData.forEach){
+  healthData.forEach(function(ep){
+   var b=baseResp[ep.name]||45;
+   var r=sr();
+   if(r<0.04){ep.status='down';ep.resp=0;}
+   else if(r<0.12){ep.status='degraded';ep.resp=Math.round(b*(1.5+sr()*1.5));}
+   else{ep.status='up';ep.resp=Math.round(b*(0.8+sr()*0.4));}
+  });
+ }
+}
+
+function rng(seed){var s=seed;return function(){s=(s*16807)%2147483647;return(s-1)/2147483646;};}
 
 // ===================================================================
-// Load data and render
+// Render Tab 1
 // ===================================================================
-fetch('api_data.json').then(function(r){return r.json();}).then(function(d){
- window.API_SVCS=d.svc;
- window.API_EPS=d.ep;
- renderTab1();
-}).catch(function(){
- // Fallback: use inline if available
- if(window.API_SVCS&&window.API_SVCS.length)renderTab1();
- else{E('#api-kpis').innerHTML='<p style=padding:40px;text-align:center;color:#9ca3af>데이터 로딩 실패</p>';}
-});
-
 function renderTab1(){
  var svcs=window.API_SVCS||[];
  var eps=window.API_EPS||[];
- healthSvcData = HEALTH_ENDPOINTS;
+ var hdata=healthData||[];
 
- // ----- Health Check aggregation -----
- var upCount=healthSvcData.filter(function(e){return e.status==='up';}).length;
- var downCount=healthSvcData.filter(function(e){return e.status==='down';}).length;
- var degCount=healthSvcData.filter(function(e){return e.status==='degraded';}).length;
- var totalSvc=healthSvcData.length;
+ // Health Check aggregation
+ var upCount=hdata.filter(function(e){return e.status==='up';}).length;
+ var downCount=hdata.filter(function(e){return e.status==='down';}).length;
+ var degCount=hdata.filter(function(e){return e.status==='degraded';}).length;
+ var totalSvc=hdata.length;
  var healthRate=totalSvc?((upCount/totalSvc)*100).toFixed(1):100;
 
- // ----- API performance aggregation -----
+ // API performance aggregation
  var totalCalls=eps.reduce(function(s,e){return s+e.r;},0);
  var avgP50=eps.length?Math.round(eps.reduce(function(s,e){return s+e.p50;},0)/eps.length):0;
  var avgP99=eps.length?Math.round(eps.reduce(function(s,e){return s+e.p99;},0)/eps.length):0;
@@ -214,7 +136,6 @@ function renderTab1(){
  var avgH50=hourP50.map(function(v){return Math.round(v/eps.length);});
  var avgH99=hourP99.map(function(v){return Math.round(v/eps.length);});
 
- // Error trend
  var errPct=parseFloat(errRate)/100||0;
  var err404=hourCalls.map(function(c){return Math.round(c*errPct*0.6);});
  var err500=hourCalls.map(function(c){return Math.round(c*errPct*0.4);});
@@ -222,7 +143,7 @@ function renderTab1(){
  // Chart 1: Call trend
  charts.chCalls=new Chart(E('#ch-trend-calls'),{type:'line',data:{labels:labels,datasets:[{data:hourCalls,borderColor:'#60a5fa',backgroundColor:'rgba(96,165,250,.1)',fill:true,tension:.4,pointRadius:2,borderWidth:2}]},options:{responsive:true,plugins:{legend:{display:false},title:{display:true,text:formatNum(totalCalls)+' 호출/24h',color:'#9ca3af',font:{size:11}}},scales:{y:{beginAtZero:true,grid:{color:'#1f293744'}},x:{grid:{color:'#1f293744'}}}}});
 
- // Chart 2: Response time trend
+ // Chart 2: Response time
  charts.chResp=new Chart(E('#ch-trend-resp'),{type:'line',data:{labels:labels,datasets:[
   {label:'P50',data:avgH50,borderColor:'#34d399',backgroundColor:'rgba(52,211,153,.08)',fill:true,tension:.4,borderWidth:2,pointRadius:0},
   {label:'P99',data:avgH99,borderColor:'#f97316',backgroundColor:'rgba(249,115,22,.05)',fill:true,tension:.4,borderWidth:2,pointRadius:0}
@@ -237,51 +158,52 @@ function renderTab1(){
  // Chart 4: Top 10 services
  var top10=svcs.slice().sort(function(a,b){return b.r-a.r;}).slice(0,10);
  charts.chTop10=new Chart(E('#ch-top10'),{type:'bar',data:{
-  labels:top10.map(function(s){return(CAT_ICONS[s.ct]||'')+s.n;}),
+  labels:top10.map(function(s){
+   var ic=C.CATEGORY_ICONS[s.category]||'';
+   return ic+s.name;
+  }),
   datasets:[
-   {label:'정상',data:top10.map(function(s){return Math.round(s.r*(1-s.e/100));}),backgroundColor:'rgba(52,211,153,.8)',borderRadius:4,stack:'s'},
-   {label:'오류',data:top10.map(function(s){return Math.round(s.r*s.e/100);}),backgroundColor:'rgba(248,113,113,.8)',borderRadius:4,stack:'s'}
+   {label:'정상',data:top10.map(function(s){
+    var n=s.r*(1-s.e/100);
+    return s.r?Math.round(n):0;
+   }),backgroundColor:'rgba(52,211,153,.8)',borderRadius:4,stack:'s'},
+   {label:'오류',data:top10.map(function(s){
+    return s.r?Math.round(s.r*s.e/100):0;
+   }),backgroundColor:'rgba(248,113,113,.8)',borderRadius:4,stack:'s'}
   ]
  },options:{responsive:true,indexAxis:'y',plugins:{legend:{display:true,position:'top'}},scales:{x:{stacked:true,beginAtZero:true,grid:{color:'#1f293744'}},y:{stacked:true,ticks:{font:{size:11}},grid:{color:'#1f293744'}}}}});
 
- // ===== Category filter for service cards =====
+ // Category filter for service cards
  var cfOpt='<option value="">전체 카테고리</option>';
  var svcCats=[];
- svcs.forEach(function(s){if(svcCats.indexOf(s.ct)===-1)svcCats.push(s.ct);});
- svcCats.sort().forEach(function(c){cfOpt+='<option value="'+c+'">'+(CAT_ICONS[c]||'')+' '+c+'</option>';});
+ svcs.forEach(function(s){if(svcCats.indexOf(s.category)===-1)svcCats.push(s.category);});
+ svcCats.sort().forEach(function(c){cfOpt+='<option value="'+c+'">'+(C.CATEGORY_ICONS[c]||'')+' '+c+'</option>';});
  E('#api-cat-filter').innerHTML=cfOpt;
+ 
  renderSvcCards('','');
 
- // ===== TOP 20 오류 API =====
+ // TOP 20 오류 API
  renderTopErrApi(eps);
 
- // ===== Event Listeners =====
- setTimeout(function(){
+ // Event listeners
+ setTimeout(function(){renderTopErrorTable(eps);
   var sf=E('#api-cat-filter');
   var ss=E('#api-svc-search');
   function sFilter(){renderSvcCards(sf?sf.value:'',ss?ss.value:'');}
   if(sf)sf.addEventListener('change',sFilter);
   if(ss)ss.addEventListener('input',sFilter);
-
-  // Card click => show TOP 5 API detail
   EA('.api-svc-card').forEach(function(card){
    card.addEventListener('click',function(e){
     var svcName=card.getAttribute('data-svc-name');
     if(!svcName)return;
     var detailBox=document.getElementById('svc-detail-'+svcName.replace(/[^a-zA-Z0-9]/g,'_'));
     if(!detailBox)return;
-    
     var wasShowing=detailBox.classList.contains('show');
-    
-    // Close all other open cards
     EA('.api-svc-detail.show').forEach(function(el){
-     if(el!==detailBox){
-      el.classList.remove('show');
+     if(el!==detailBox){el.classList.remove('show');
       var parentCard=el.closest('.api-svc-card');
-      if(parentCard)parentCard.classList.remove('expanded');
-     }
+      if(parentCard)parentCard.classList.remove('expanded');}
     });
-    
     if(!wasShowing){
      detailBox.classList.add('show');
      card.classList.add('expanded');
@@ -289,7 +211,7 @@ function renderTab1(){
       renderSvcTop5(svcName,detailBox);
       detailBox.dataset.rendered='1';
      }
-    } else {
+    }else{
      detailBox.classList.remove('show');
      card.classList.remove('expanded');
     }
@@ -304,8 +226,8 @@ function renderTab1(){
 function renderSvcCards(catF,search){
  var svcs=window.API_SVCS||[];
  var filtered=svcs.filter(function(s){
-  if(catF&&s.ct!==catF)return false;
-  if(search&&(s.n.toLowerCase().indexOf(search.toLowerCase())===-1&&s.k.toLowerCase().indexOf(search.toLowerCase())===-1))return false;
+  if(catF&&s.category!==catF)return false;
+  if(search&&(s.name.toLowerCase().indexOf(search.toLowerCase())===-1&&s.key.toLowerCase().indexOf(search.toLowerCase())===-1))return false;
   return true;
  });
  
@@ -315,53 +237,50 @@ function renderSvcCards(catF,search){
   var errCol=svc.e>5?'#f87171':svc.e>2?'#fbbf24':'#34d399';
   
   // Find matching health endpoint
-  var he = null;
-  for(var i=0;i<HEALTH_ENDPOINTS.length;i++){
-   if(HEALTH_ENDPOINTS[i].svc===svc.n || HEALTH_ENDPOINTS[i].svc.indexOf(svc.n)!==-1 || svc.n.indexOf(HEALTH_ENDPOINTS[i].svc)!==-1){
-    he=HEALTH_ENDPOINTS[i];
-    break;
+  var hdata=healthData||[];
+  var he=null;
+  for(var i=0;i<hdata.length;i++){
+   if(hdata[i].name===svc.name||hdata[i].name.indexOf(svc.name)!==-1||svc.name.indexOf(hdata[i].name)!==-1){
+    he=hdata[i];break;
    }
   }
   
-  // Status indicator
-  var dotColor, dotStatus;
+  var dotColor,dotStatus;
   if(he){
    if(he.status==='up'){dotColor='#34d399';dotStatus='정상';}
    else if(he.status==='degraded'){dotColor='#fbbf24';dotStatus='지연';}
    else{dotColor='#f87171';dotStatus='다운';}
-  } else {
+  }else{
    dotColor='#6b7280';dotStatus='N/A';
   }
   
-  h+='<div class="api-svc-card" style="position:relative" data-svc-name="'+svc.n+'">';
-  // Status indicator top-right
+  h+='<div class="api-svc-card" style="position:relative" data-svc-name="'+svc.name+'">';
   h+='<div style="position:absolute;top:12px;right:14px;display:flex;align-items:center;gap:6px">';
   h+='<div style="width:10px;height:10px;border-radius:50%;background:'+dotColor+';box-shadow:0 0 8px '+dotColor+';animation:pulse 2s infinite"></div>';
   h+='<span style="font-size:.68rem;font-weight:600;color:'+dotColor+'">'+dotStatus+'</span>';
   h+='</div>';
   
   h+='<div style="display:flex;justify-content:flex-start;align-items:flex-start;margin-bottom:8px;padding-right:70px">';
-  h+='<div><div class="svc-title">'+(CAT_ICONS[svc.ct]||'')+' '+svc.n+'</div>';
-  h+='<div class="svc-cat">'+svc.ct+' · '+svc.ac+'개 API</div></div>';
+  h+='<div><div class="svc-title">'+(C.CATEGORY_ICONS[svc.category]||'')+' '+svc.name+'</div>';
+  h+='<div class="svc-cat">'+svc.category+' · '+(svc.apiCount||0)+'개 API</div></div>';
   h+='</div>';
   h+='<div class="svc-metrics">';
-  h+='<div class=m-item><div class=m-val style=color:'+(svc.c||CAT_COLORS[svc.ct])+'>'+formatNum(svc.r)+'</div><div class=m-label>호출/h</div></div>';
+  h+='<div class=m-item><div class=m-val style=color:'+(C.CATEGORY_COLORS[svc.category]||'#60a5fa')+'>'+formatNum(svc.r)+'</div><div class=m-label>호출/h</div></div>';
   h+='<div class=m-item><div class=m-val style=color:'+errCol+'>'+formatNum(errH)+'</div><div class=m-label>오류/h</div></div>';
   h+='<div class=m-item><div class=m-val>'+svc.p50+'ms</div><div class=m-label>P50</div></div>';
   h+='<div class=m-item><div class=m-val style=color:'+(svc.p99>300?'#f87171':'#e5e7eb')+'>'+svc.p99+'ms</div><div class=m-label>P99</div></div>';
   h+='</div>';
-  // Sparkline
+  
   if(svc.qt&&svc.qt.length){
    var maxR=Math.max.apply(null,svc.qt)||1;
    var pts=svc.qt.map(function(v,i){
     var x=i/23*100,y=16-v/maxR*14;
     return(i===0?'M':'L')+x.toFixed(1)+' '+y.toFixed(1);
    }).join(' ');
-   h+='<svg viewBox="0 0 100 16" style="width:100%;height:16px;margin-top:8px;opacity:.65"><path d="'+pts+'" stroke="'+(svc.c||CAT_COLORS[svc.ct])+'" stroke-width="1.5" fill="none"/></svg>';
+   h+='<svg viewBox="0 0 100 16" style="width:100%;height:16px;margin-top:8px;opacity:.65"><path d="'+pts+'" stroke="'+(C.CATEGORY_COLORS[svc.category]||'#60a5fa')+'" stroke-width="1.5" fill="none"/></svg>';
   }
 
-  // TOP 5 API detail box
-  var detailId='svc-detail-'+svc.n.replace(/[^a-zA-Z0-9]/g,'_');
+  var detailId='svc-detail-'+svc.name.replace(/[^a-zA-Z0-9]/g,'_');
   h+='<div class="api-svc-detail" id="'+detailId+'"><div style="margin-bottom:8px;font-size:.85rem;font-weight:600;color:#e5e7eb">🔝 TOP 5 API</div>';
   h+='<table style=width:100%><thead><tr>';
   h+='<th>메서드</th><th>API 경로</th><th>호출/h</th><th>P50</th><th>P99</th><th>오류/h</th><th>오류율</th>';
@@ -373,69 +292,51 @@ function renderSvcCards(catF,search){
  if(grid)grid.innerHTML=h||'<p style="text-align:center;color:#6b7280;padding:40px">해당 서비스가 없습니다</p>';
 }
 
-
 // ===================================================================
-// Service TOP 5 API detail (called on card click)
+// Service TOP 5 API detail
 // ===================================================================
 function renderSvcTop5(svcName,detailBox){
  var eps=window.API_EPS||[];
- // Find matching endpoints for this service
- var matched=eps.filter(function(e){
-  return e.sv===svcName || (e.p.indexOf('/v1/')!==-1 && e.sv.indexOf(svcName.replace(/[^a-zA-Z가-힣]/g,''))!==-1);
- });
- // If no direct match, fuzzy match by path segments
+ var matched=eps.filter(function(e){return e.sv===svcName;});
  if(matched.length===0){
   matched=eps.filter(function(e){
-   var svcParts=svcName.toLowerCase().replace(/[^a-z가-힣]/g,'').split('');
-   var pathLower=e.p.toLowerCase().replace(/[^a-z가-힣]/g,'');
-   for(var i=0;i<svcParts.length;i++){
-    if(pathLower.indexOf(svcParts[i])!==-1)return true;
-   }
-   return pathLower.indexOf(svcName.toLowerCase().replace(/[^a-z가-힣]/g,''))!==-1 ||
-          svcName.toLowerCase().indexOf(pathLower)!==-1;
+   return e.p.indexOf('/v1/')!==-1;
   });
  }
- // Sort by requests, take top 5
  matched.sort(function(a,b){return b.r-a.r;});
  var top5=matched.slice(0,5);
- if(top5.length===0){
-  // Fallback: return all eps that might match
-  top5=eps.slice(0,5);
- }
+ if(top5.length===0)top5=eps.slice(0,5);
+ 
  var h='';
  top5.forEach(function(ep){
-  var errH=Math.round(ep.r*ep.e/100);
+  var erH=Math.round(ep.r*ep.e/100);
   var errCol=ep.e>5?'sev-c':ep.e>1?'sev-w':'';
-  var pcol=ep.p99>300?'#f87171':ep.p99>150?'#fbbf24':'#e5e7eb';
   h+='<tr>';
   h+='<td><span class="method-badge method-'+ep.m.toLowerCase()+'">'+ep.m+'</span></td>';
   h+='<td style="font-family:monospace;font-size:.78rem;color:#e5e7eb">'+ep.p+'</td>';
-  h+='<td style="font-weight:600">'+formatNum(ep.r)+'</td>';
+  h+='<td>'+formatNum(ep.r)+'</td>';
   h+='<td>'+ep.p50+'ms</td>';
-  h+='<td style="color:'+pcol+'">'+ep.p99+'ms</td>';
-  h+='<td style="color:'+errCol+'">'+formatNum(errH)+'</td>';
+  h+='<td style="color:'+(ep.p99>300?'#f87171':ep.p99>150?'#fbbf24':'#e5e7eb')+'">'+ep.p99+'ms</td>';
+  h+='<td style="color:'+errCol+'">'+formatNum(erH)+'</td>';
   h+='<td style="color:'+errCol+'">'+ep.e+'%</td>';
   h+='</tr>';
  });
  var tbodyId=detailBox.id+'-body';
- var tbody=document.getElementById(tbodyId);
- if(tbody)tbody.innerHTML=h;
+ var el=document.getElementById(tbodyId);
+ if(el)el.innerHTML=h;
 }
 
 // ===================================================================
-// TOP 20 오류 API 테이블 (전체)
+// TOP 20 오류 API
 // ===================================================================
 function renderTopErrApi(eps){
- var topErr=eps.slice().sort(function(a,b){
-  return(b.r*b.e/100)-(a.r*a.e/100);
- }).slice(0,20);
+ var topErr=eps.slice().sort(function(a,b){return(b.r*b.e/100)-(a.r*a.e/100);}).slice(0,20);
  var h='';
  topErr.forEach(function(ep){
   var errH=Math.round(ep.r*ep.e/100);
   var errCol=ep.e>5?'sev-c':ep.e>1?'sev-w':'';
-  var pcol=ep.p99>300?'#f87171':ep.p99>150?'#fbbf24':'#e5e7eb';
   h+='<tr>';
-  h+='<td style="color:'+(CAT_COLORS[ep.ct]||'#9ca3af')+'">'+(CAT_ICONS[ep.ct]||'')+' '+ep.sv+'</td>';
+  h+='<td style="color:'+(C.CATEGORY_COLORS[ep.ct]||'#9ca3af')+'">'+(C.CATEGORY_ICONS[ep.ct]||'')+' '+ep.sv+'</td>';
   h+='<td><span class="method-badge method-'+ep.m.toLowerCase()+'">'+ep.m+'</span></td>';
   h+='<td style="font-family:monospace;font-size:.78rem;color:#e5e7eb">'+ep.p+'</td>';
   h+='<td style="color:#9ca3af;font-size:.78rem;max-width:250px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+(ep.d||'')+'</td>';
@@ -444,8 +345,8 @@ function renderTopErrApi(eps){
   h+='<td style="color:'+errCol+'">'+ep.e+'%</td>';
   h+='</tr>';
  });
- var tbl=document.getElementById('top-err-tbl');
- if(tbl)tbl.innerHTML=h;
+ var el=document.getElementById('top-err-tbl');
+ if(el)el.innerHTML=h;
 }
 
 // ===================================================================
@@ -460,8 +361,9 @@ function initTabs(){
    var tc=document.getElementById('tab-'+b.dataset.tab);
    if(tc)tc.classList.add('active');
    Object.keys(charts).forEach(function(k){if(charts[k]&&charts[k].resize)charts[k].resize();});
-   // Trigger tab2 rendering when switching to it
-   if(b.dataset.tab==='services')try{if(typeof renderTab2==='function')renderTab2();}catch(e){}
+   if(b.dataset.tab==='services'){
+    try{if(typeof renderTab2==='function')renderTab2();}catch(e){console.error(e);}
+   }
   });
  });
 }

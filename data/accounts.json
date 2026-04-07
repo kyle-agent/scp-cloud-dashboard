@@ -1,0 +1,12 @@
+{
+  "totalAccounts": 1287,
+  "newAccountsToday": 3,
+  "newAccountsThisWeek": 18,
+  "newAccountsThisMonth": 87,
+  "lastMonthRevenue": 18500000000,
+  "monthOverMonthGrowth": 0.08,
+  "totalActiveInstances": 5847,
+  "newInstancesToday": 24,
+  "monthlyRevenueTrend": [12100, 12500, 13100, 12800, 13500, 14200, 14800, 15500, 15200, 16100, 16800, 18500],
+  "categoryRevenue": {}
+}

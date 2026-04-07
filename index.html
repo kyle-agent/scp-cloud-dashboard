@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Samsung Cloud Platform 운영 대시보드</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:#111827;color:#e5e7eb;min-height:100vh}
+.header{padding:16px 28px;border-bottom:1px solid #1f2937;display:flex;justify-content:space-between;align-items:center;background:linear-gradient(135deg,#0f172a 0%,#1e293b 100%)}
+.header h1{font-size:1.35rem;color:#f9fafb;display:flex;align-items:center;gap:12px}
+.brand{font-weight:900}
+.brand-s{color:#60a5fa}
+.brand-c{color:#f9fafb}
+.status-badge{display:flex;align-items:center;gap:8px;padding:6px 16px;border-radius:20px;font-size:.8rem;font-weight:600}
+.status-badge.ok{background:#064e3b;color:#6ee7b7}
+.status-badge.warn{background:#422006;color:#fcd34d}
+.status-badge.err{background:#4c0519;color:#fda4af}
+.dot{width:10px;height:10px;border-radius:50%;background:#34d399;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.3)}}
+#clock{font-family:monospace;font-size:.78rem;color:#9ca3c0;margin-top:3px}
+.tabs{display:flex;background:#0f172a;border-bottom:2px solid #1f2937;padding:0 28px;overflow-x:auto}
+.tab-btn{background:none;border:none;color:#6b7280;padding:14px 22px;font-size:.88rem;font-weight:600;cursor:pointer;position:relative;white-space:nowrap;transition:color .2s}
+.tab-btn:hover{color:#e2e8f0}
+.tab-btn.active{color:#7dd3fc}
+.tab-btn.active::after{content:'';position:absolute;bottom:-2px;left:0;right:0;height:2px;background:#7dd3fc}
+.tab-content{display:none}.tab-content.active{display:block}
+.container{padding:22px 28px;max-width:1920px;margin:0 auto}
+.sla-bar{display:flex;gap:12px;margin-bottom:22px;flex-wrap:wrap}
+.sla-item{background:#1f2937;border:1px solid #374151;border-radius:10px;padding:14px 20px;flex:1;min-width:150px;text-align:center}
+.sla-item .sla-label{font-size:.7rem;color:#9ca3af;text-transform:uppercase;letter-spacing:.5px}
+.sla-item .sla-val{font-size:1.6rem;font-weight:800;margin-top:4px}
+.sla-item .sla-sub{font-size:.72rem;margin-top:2px}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:14px;margin-bottom:24px}
+.kpi-card{background:linear-gradient(135deg,#1e293b 0%,#1f2937 100%);border-radius:10px;padding:18px;border:1px solid #374151;transition:transform .2s,box-shadow .2s}
+.kpi-card:hover{transform:translateY(-2px);box-shadow:0 4px 20px rgba(125,211,252,.1)}
+.kpi-label{font-size:.72rem;color:#9ca3af;text-transform:uppercase;letter-spacing:.5px}
+.kpi-value{font-size:1.75rem;font-weight:700;margin:6px 0 2px}
+.kpi-sub{font-size:.75rem}
+.kpi-up{color:#34d399}.kpi-down{color:#f87171}.kpi-warn{color:#fbbf24}
+.charts-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(380px,1fr));gap:16px;margin-bottom:24px}
+.chart-card{background:#1f2937;border-radius:10px;padding:18px;border:1px solid #374151}
+.chart-card h3{font-size:.92rem;margin-bottom:14px;color:#e5e7eb}
+.api-svc-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:12px}
+.api-svc-header h3{font-size:1rem;color:#e5e7eb}
+.api-svc-filters{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.api-svc-filters input{background:#111827;border:1px solid #374151;color:#e5e7eb;padding:6px 12px;border-radius:6px;font-size:.82rem;width:220px}
+.api-svc-filters input:focus{outline:none;border-color:#7dd3fc}
+.api-svc-filters select{background:#111827;border:1px solid #374151;color:#e5e7eb;padding:6px 10px;border-radius:6px;font-size:.82rem}
+.cat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;margin-bottom:26px}
+.api-svc-card{background:linear-gradient(135deg,#1e293b 0%,#1f2937 100%);border-radius:12px;border:1px solid #374151;padding:18px;cursor:pointer;transition:all .25s}
+.api-svc-card:hover{border-color:#3b82f6;box-shadow:0 6px 24px rgba(125,211,252,.12);transform:translateY(-1px)}
+.api-svc-card.expanded{grid-column:1/-1}
+.svc-top{display:flex;justify-content:space-between;align-items:flex-start}
+.svc-title{font-size:.95rem;font-weight:700;color:#f3f4f6;margin-bottom:2px}
+.svc-cat{font-size:.68rem;color:#9ca3af;text-transform:uppercase;letter-spacing:.4px}
+.svc-status{font-size:.7rem;font-weight:600;padding:3px 10px;border-radius:10px}
+.svc-status.healthy{background:#0a3d2e;color:#6ee7b7}
+.svc-status.degraded{background:#5c3a10;color:#fcd34d}
+.svc-status.error{background:#6b1030;color:#fda4af}
+.services-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-bottom:16px}
+.services-grid .api-svc-card{margin-bottom:0}
+.svc-metrics{display:flex;gap:16px;margin-top:12px;flex-wrap:wrap}
+.m-item{text-align:center}
+.m-val{font-size:1.1rem;font-weight:700;margin-bottom:2px}
+.m-label{font-size:.65rem;color:#9ca3af;text-transform:uppercase}
+.err-bar{height:4px;background:#374151;border-radius:2px;margin-top:10px;overflow:hidden}
+.err-bar-fill{height:100%;border-radius:2px}
+.api-svc-detail{display:none;margin-top:14px;padding-top:12px;border-top:1px solid #374151}
+.api-svc-detail.show{display:block}
+.table-card{background:#1f2937;border-radius:10px;border:1px solid #374151;overflow:hidden;margin-bottom:18px}
+.table-card h3{font-size:.92rem;padding:14px 20px;border-bottom:1px solid #374151;color:#e5e7eb;display:flex;align-items:center;gap:10px}
+.tbl-header{display:flex;justify-content:space-between;align-items:center;padding:10px 20px;border-bottom:1px solid #374151;flex-wrap:wrap;gap:8px}
+.tbl-header input{background:#111827;border:1px solid #374151;color:#e5e7eb;padding:6px 12px;border-radius:6px;font-size:.82rem;width:240px}
+.tbl-header input:focus{outline:none;border-color:#7dd3fc}
+.tbl-header select{background:#111827;border:1px solid #374151;color:#e5e7eb;padding:6px 10px;border-radius:6px;font-size:.82rem}
+table{width:100%;border-collapse:collapse}
+th,td{padding:9px 18px;text-align:left;font-size:.82rem}
+th{background:#111827;color:#9ca3af;font-weight:600;text-transform:uppercase;letter-spacing:.4px;font-size:.72rem}
+td{border-top:1px solid #1f2937}
+tr:hover td{background:#1e293b}
+.badge{display:inline-block;padding:3px 12px;border-radius:12px;font-size:.72rem;font-weight:600}
+.bg-run{background:#0a3d2e;color:#6ee7b7}.bg-prov{background:#1e3a5f;color:#60a5fa}
+.bg-err{background:#6b1030;color:#fda4af}.bg-term{background:#374151;color:#9ca3af}
+.bg-warn{background:#5c3a10;color:#fcd34d}
+.sdot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px}
+.sdot.ok{background:#34d399}.sdot.warn{background:#fbbf24}.sdot.err{background:#f87171}
+.sdot.prov{background:#60a5fa;animation:pulse 1.5s infinite}
+.method-badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:.7rem;font-weight:700;font-family:monospace}
+.method-get{background:#0a3d2e;color:#6ee7b7}.method-post{background:#1e3a5f;color:#60a5fa}
+.method-put{background:#5c3a10;color:#fcd34d}.method-patch{background:#4a2070;color:#c084fc}
+.method-delete{background:#6b1030;color:#fda4af}
+.pb-bg{height:6px;background:#374151;border-radius:3px;overflow:hidden}
+.pb-fill{height:100%;border-radius:3px;transition:width .8s}
+.sev-c{color:#f87171;font-weight:700}.sev-w{color:#fbbf24;font-weight:600}.sev-i{color:#60a5fa;font-weight:600}
+.modal-bg{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.78);z-index:1000;justify-content:center;align-items:center}
+.modal-bg.show{display:flex}
+.modal{background:#1f2937;border:1px solid #374151;border-radius:14px;padding:24px;max-width:720px;width:92%;max-height:85vh;overflow-y:auto}
+.modal h3{font-size:1.05rem;margin-bottom:14px}
+.close-btn{background:#374151;color:#e5e7eb;border:none;padding:8px 20px;border-radius:6px;cursor:pointer;font-size:.82rem;margin-top:16px}
+.close-btn:hover{background:#4b5563}
+.modal table td,.modal table th{padding:8px 14px;font-size:.82rem}
+.modal table th{background:transparent;text-transform:none;color:#9ca3af;font-size:.75rem}
+.modal table td{border-top:1px solid #1f293744}
+.revenue-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px;margin-bottom:26px}
+.rev-card{background:linear-gradient(135deg,#1e293b,#1f2937);border:1px solid #1a3050;border-radius:12px;padding:18px;text-align:center}
+.rev-card .rv-label{font-size:.72rem;color:#9ca3af;text-transform:uppercase;letter-spacing:.5px}
+.rev-card .rv-val{font-size:1.7rem;font-weight:800;margin-top:5px}
+.rev-card .rv-sub{font-size:.78rem;margin-top:4px}
+@media(max-width:768px){.charts-grid{grid-template-columns:1fr}.cat-grid{grid-template-columns:1fr}.table-card{overflow-x:auto}.tbl-header{flex-direction:column;align-items:flex-start}}
+</style>
+</head>
+<body>
+
+<div class="header">
+ <div>
+  <h1><span class="brand"><span class="brand-s">Samsung</span> <span class="brand-c">Cloud Platform</span></span> 운영 대시보드</h1>
+  <div id="clock"></div>
+ </div>
+ <div class="status-badge ok" id="sys-status"><span class="dot"></span><span>정상</span></div>
+</div>
+
+<div class="tabs">
+ <button class="tab-btn active" data-tab="system">서비스 현황</button>
+ <button class="tab-btn" data-tab="services">서비스 제공 현황</button>
+</div>
+
+<!-- TAB 1: API 운영 현황 -->
+<div class="tab-content active" id="tab-system">
+ <div class="container">
+  <div class="sla-bar" id="sla-bar"></div>
+  <div class="kpi-grid" id="api-kpis"></div>
+  <div class="charts-grid">
+   <div class="chart-card"><h3>📈 전체 호출 수 추이 (24h)</h3><canvas id="ch-trend-calls"></canvas></div>
+   <div class="chart-card"><h3>⚡ 응답시간 추이 (P50/P99)</h3><canvas id="ch-trend-resp"></canvas></div>
+   <div class="chart-card"><h3>🔴 오류 건수 추이 (404/500)</h3><canvas id="ch-trend-errs"></canvas></div>
+   <div class="chart-card"><h3>🏆 TOP 10 API 호출 서비스</h3><canvas id="ch-top10"></canvas></div>
+  </div>
+  <div class="api-svc-header">
+   <h3>🔍 개별 서비스 현황</h3>
+   <div class="api-svc-filters">
+    <select id="api-cat-filter"><option value="">전체 카테고리</option></select>
+    <input type="text" id="api-svc-search" placeholder="서비스 검색...">
+   </div>
+  </div>
+ <div class="cat-grid" id="api-svc-grid"></div>
+
+  <!-- TOP 20 오류 API -->
+  <div class="api-svc-header" style="margin-top:28px">
+   <h3>🔴 TOP 20 오류 API</h3>
+  </div>
+  <div class="table-card">
+   <div style="overflow-x:auto"><table><thead><tr>
+    <th>서비스</th><th>메서드</th><th>API 경로</th><th>설명</th><th>호출/h</th><th>오류/h</th><th>오류율</th>
+   </tr></thead><tbody id="top-err-tbl"></tbody></table></div>
+  </div>
+ </div>
+</div>
+
+<!-- TAB 2: 서비스 제공 현황 -->
+<div class="tab-content" id="tab-services"><div class="container" id="svc-container"></div></div>
+
+<div class="modal-bg" id="modal-bg"> <div class="modal"> <h3 id="m-title"></h3> <div id="m-body"></div> <button class="close-btn" id="m-close">닫기</button> </div></div>
+
+<script src="tab1.js"></script>
+<script src="tab2.js"></script>
+</body>
+</html>

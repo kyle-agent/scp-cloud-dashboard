@@ -398,74 +398,122 @@ const Dashboard = {
       }
 
       return `
-        <div class="api-svc-card" style="position:relative" data-svc-name="${svc.name}">
-          <div style="position:absolute; top:12px; right:14px; display:flex; align-items:center; gap:6px">
-            <div style="width:10px; height:10px; border-radius:50%; background:${dotColor}; box-shadow:0 0 8px ${dotColor}; animation:pulse 2s infinite"></div>
-            <span style="font-size:.68rem; font-weight:600; color:${dotColor}">${dotStatus}</span>
+        <div class="api-svc-card" data-svc-name="${svc.name}">
+          <div class="svc-chip">
+            <span class="chip-dot" style="background:${dotColor}; box-shadow:0 0 6px ${dotColor}"></span>
+            <span style="color:${dotColor}">${dotStatus}</span>
           </div>
-          <div style="display:flex; justify-content:flex-start; align-items:flex-start; margin-bottom:8px; padding-right:70px">
-            <div>
-              <div class="svc-title">${categoryIcon} ${svc.name}</div>
-              <div class="svc-cat">${svc.category} \u00b7 ${svc.apiCount || 0}개 API</div>
-            </div>
+          <div style="padding-right:80px">
+            <div class="svc-title">${categoryIcon} ${svc.name}</div>
+            <div class="svc-cat">${svc.category} \u00b7 ${svc.apiCount || 0}개 API</div>
           </div>
           <div class="svc-metrics">
             <div class="m-item"><div class="m-val" style="color:${categoryColor}">${this.formatNumber(svc.r)}</div><div class="m-label">호출/h</div></div>
             <div class="m-item"><div class="m-val" style="color:${errorColor}">${this.formatNumber(errorsPerHour)}</div><div class="m-label">오류/h</div></div>
             <div class="m-item"><div class="m-val">${svc.p50}ms</div><div class="m-label">P50</div></div>
-            <div class="m-item"><div class="m-val" style="color:${svc.p99 > 300 ? '#f87171' : '#e5e7eb'}">${svc.p99}ms</div><div class="m-label">P99</div></div>
+            <div class="m-item"><div class="m-val" style="color:${svc.p99 > 300 ? 'var(--danger)' : 'var(--text-primary)'}">${svc.p99}ms</div><div class="m-label">P99</div></div>
           </div>
           ${sparklineSvg}
-          <div class="api-svc-detail" id="${detailId}">
-            <div style="margin-bottom:8px; font-size:.85rem; font-weight:600; color:#e5e7eb">\ud83d\udd1d TOP 5 API</div>
-            <table style="width:100%">
-              <thead><tr><th>메서드</th><th>API 경로</th><th>호출/h</th><th>P50</th><th>P99</th><th>오류/h</th><th>오류율</th></tr></thead>
-              <tbody id="${detailId}-body"></tbody>
-            </table>
-          </div>
         </div>
       `;
     }).join('');
 
     const grid = this.select('#api-svc-grid');
     if (grid) {
-      grid.innerHTML = html || '<p style="text-align:center; color:#6b7280; padding:40px">해당 서비스가 없습니다</p>';
+      grid.innerHTML = html || '<p style="text-align:center; color:var(--text-muted); padding:40px">해당 서비스가 없습니다</p>';
     }
   },
 
-  // ===== Service TOP 5 Detail =====
-  renderServiceTop5(serviceName, detailBox) {
+  // ===== Service Detail Modal =====
+  openServiceModal(serviceName) {
+    const services = window.API_SVCS || [];
     const endpoints = window.API_EPS || [];
+    const healthEntries = this.healthData || [];
 
+    const svc = services.find(s => s.name === serviceName);
+    if (!svc) return;
+
+    const categoryColor = AppConfig.categoryColors[svc.category] || '#60a5fa';
+    const categoryIcon = AppConfig.categoryIcons[svc.category] || '';
+    const errorsPerHour = Math.round(svc.r * svc.e / 100);
+
+    const healthEntry = healthEntries.find(entry =>
+      entry.name === svc.name ||
+      entry.name.includes(svc.name) ||
+      svc.name.includes(entry.name)
+    );
+
+    let statusLabel = 'N/A';
+    let statusColor = 'var(--text-muted)';
+    if (healthEntry) {
+      if (healthEntry.status === 'up')            { statusLabel = '정상'; statusColor = 'var(--success)'; }
+      else if (healthEntry.status === 'degraded') { statusLabel = '지연'; statusColor = 'var(--warning)'; }
+      else                                        { statusLabel = '다운'; statusColor = 'var(--danger)'; }
+    }
+
+    // Top 5 APIs for this service
     let matched = endpoints.filter(ep => ep.sv === serviceName);
     if (matched.length === 0) {
       matched = endpoints.filter(ep => ep.p.includes('/v1/'));
     }
-
     matched.sort((a, b) => b.r - a.r);
-    let top5 = matched.slice(0, 5);
-    if (top5.length === 0) top5 = endpoints.slice(0, 5);
+    const top5 = matched.slice(0, 5);
 
-    const html = top5.map(ep => {
-      const errorsPerHour = Math.round(ep.r * ep.e / 100);
+    const top5Rows = top5.map(ep => {
+      const epErrors = Math.round(ep.r * ep.e / 100);
       const severityClass = ep.e > 5 ? 'sev-c' : ep.e > 1 ? 'sev-w' : '';
-      const p99Color = ep.p99 > 300 ? '#f87171' : ep.p99 > 150 ? '#fbbf24' : '#e5e7eb';
+      const p99Color = ep.p99 > 300 ? 'var(--danger)' : ep.p99 > 150 ? 'var(--warning)' : 'var(--text-primary)';
 
       return `
         <tr>
           <td><span class="method-badge method-${ep.m.toLowerCase()}">${ep.m}</span></td>
-          <td style="font-family:monospace; font-size:.78rem; color:#e5e7eb">${ep.p}</td>
+          <td style="font-family:'Consolas',monospace; font-size:.8rem; color:var(--text-primary)">${ep.p}</td>
           <td>${this.formatNumber(ep.r)}</td>
           <td>${ep.p50}ms</td>
           <td style="color:${p99Color}">${ep.p99}ms</td>
-          <td class="${severityClass}">${this.formatNumber(errorsPerHour)}</td>
+          <td class="${severityClass}">${this.formatNumber(epErrors)}</td>
           <td class="${severityClass}">${ep.e}%</td>
         </tr>
       `;
     }).join('');
 
-    const tbody = document.getElementById(`${detailBox.id}-body`);
-    if (tbody) tbody.innerHTML = html;
+    const title = `${categoryIcon} ${svc.name}`;
+    const body = `
+      <div style="display:flex; align-items:center; gap:14px; margin-bottom:18px; padding-bottom:14px; border-bottom:1px solid var(--border)">
+        <div style="font-size:.78rem; color:var(--text-muted); text-transform:uppercase; font-weight:600">${svc.category}</div>
+        <div style="display:flex; align-items:center; gap:6px; padding:4px 12px; border-radius:12px; background:rgba(255,255,255,.04); border:1px solid var(--border)">
+          <span style="width:8px; height:8px; border-radius:50%; background:${statusColor}; animation:pulse 2s infinite"></span>
+          <span style="font-size:.78rem; font-weight:700; color:${statusColor}">${statusLabel}</span>
+        </div>
+        <div style="font-size:.82rem; color:var(--text-secondary)">${svc.apiCount || 0}개 API 엔드포인트</div>
+      </div>
+
+      <div class="modal-stats">
+        <div class="modal-stat"><div class="ms-label">호출/h</div><div class="ms-val" style="color:${categoryColor}">${this.formatNumber(svc.r)}</div></div>
+        <div class="modal-stat"><div class="ms-label">오류/h</div><div class="ms-val" style="color:${svc.e > 5 ? 'var(--danger)' : svc.e > 2 ? 'var(--warning)' : 'var(--success)'}">${this.formatNumber(errorsPerHour)}</div></div>
+        <div class="modal-stat"><div class="ms-label">오류율</div><div class="ms-val">${svc.e}%</div></div>
+        <div class="modal-stat"><div class="ms-label">P50</div><div class="ms-val">${svc.p50}ms</div></div>
+        <div class="modal-stat"><div class="ms-label">P99</div><div class="ms-val" style="color:${svc.p99 > 300 ? 'var(--danger)' : 'var(--text-primary)'}">${svc.p99}ms</div></div>
+      </div>
+
+      <div style="font-size:.92rem; font-weight:700; color:var(--text-primary); margin:18px 0 10px">\ud83d\udd1d TOP 5 API</div>
+      <div style="overflow-x:auto; border-radius:8px; border:1px solid var(--border)">
+        <table>
+          <thead>
+            <tr><th>메서드</th><th>API 경로</th><th>호출/h</th><th>P50</th><th>P99</th><th>오류/h</th><th>오류율</th></tr>
+          </thead>
+          <tbody>${top5Rows || '<tr><td colspan="7" style="text-align:center; color:var(--text-muted); padding:20px">데이터 없음</td></tr>'}</tbody>
+        </table>
+      </div>
+    `;
+
+    this.select('#m-title').textContent = title;
+    this.select('#m-body').innerHTML = body;
+    this.select('#modal-bg').classList.add('show');
+  },
+
+  closeModal() {
+    this.select('#modal-bg').classList.remove('show');
   },
 
   // ===== Top Error APIs =====
@@ -499,54 +547,51 @@ const Dashboard = {
 
   // ===== Event Listeners =====
   attachEventListeners(endpoints) {
-    setTimeout(() => {
-      const categoryFilter = this.select('#api-cat-filter');
-      const searchInput = this.select('#api-svc-search');
+    const categoryFilter = this.select('#api-cat-filter');
+    const searchInput = this.select('#api-svc-search');
 
-      const applyFilter = () => {
-        this.renderServiceCards(
-          categoryFilter ? categoryFilter.value : '',
-          searchInput ? searchInput.value : ''
-        );
-      };
+    const applyFilter = () => {
+      this.renderServiceCards(
+        categoryFilter ? categoryFilter.value : '',
+        searchInput ? searchInput.value : ''
+      );
+      this.attachCardClickListeners();
+    };
 
-      if (categoryFilter) categoryFilter.addEventListener('change', applyFilter);
-      if (searchInput) searchInput.addEventListener('input', applyFilter);
+    if (categoryFilter) categoryFilter.addEventListener('change', applyFilter);
+    if (searchInput) searchInput.addEventListener('input', applyFilter);
 
-      this.selectAll('.api-svc-card').forEach(card => {
-        card.addEventListener('click', () => {
-          const serviceName = card.getAttribute('data-svc-name');
-          if (!serviceName) return;
+    this.attachCardClickListeners();
+    this.attachModalListeners();
+  },
 
-          const detailId = `svc-detail-${serviceName.replace(/[^a-zA-Z0-9]/g, '_')}`;
-          const detailBox = document.getElementById(detailId);
-          if (!detailBox) return;
-
-          const wasShowing = detailBox.classList.contains('show');
-
-          // Collapse all other details
-          this.selectAll('.api-svc-detail.show').forEach(el => {
-            if (el !== detailBox) {
-              el.classList.remove('show');
-              const parentCard = el.closest('.api-svc-card');
-              if (parentCard) parentCard.classList.remove('expanded');
-            }
-          });
-
-          if (!wasShowing) {
-            detailBox.classList.add('show');
-            card.classList.add('expanded');
-            if (!detailBox.dataset.rendered) {
-              this.renderServiceTop5(serviceName, detailBox);
-              detailBox.dataset.rendered = '1';
-            }
-          } else {
-            detailBox.classList.remove('show');
-            card.classList.remove('expanded');
-          }
-        });
+  attachCardClickListeners() {
+    this.selectAll('#api-svc-grid .api-svc-card').forEach(card => {
+      card.addEventListener('click', () => {
+        const serviceName = card.getAttribute('data-svc-name');
+        if (serviceName) this.openServiceModal(serviceName);
       });
-    }, 100);
+    });
+  },
+
+  attachModalListeners() {
+    if (this._modalListenersAttached) return;
+    this._modalListenersAttached = true;
+
+    const modalBg = this.select('#modal-bg');
+    const closeBtn = this.select('#m-close');
+
+    if (closeBtn) closeBtn.addEventListener('click', () => this.closeModal());
+
+    if (modalBg) {
+      modalBg.addEventListener('click', (e) => {
+        if (e.target === modalBg) this.closeModal();
+      });
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') this.closeModal();
+    });
   },
 
   // ===== Tab Switching =====

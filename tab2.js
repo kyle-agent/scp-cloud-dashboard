@@ -54,6 +54,7 @@ const ServiceProvision = {
 
     setTimeout(() => {
       this.renderSummaryCharts();
+      this.renderServiceMiniCharts();
       this.attachAccordionListeners();
     }, 200);
   },
@@ -253,7 +254,9 @@ const ServiceProvision = {
       const catInfo = this.categoryMap[category];
       const icon = AppConfig.categoryIcons[category] || '\ud83d\udce6';
 
-      const compactCards = items.map(svc => `
+      const compactCards = items.map(svc => {
+        const safeKey = svc.key.replace(/[^a-zA-Z0-9]/g, '_');
+        return `
         <div class="compact-svc-card">
           <div class="svc-title">${svc.icon} ${svc.name}</div>
           <div class="svc-cat">${svc.apiCount} APIs</div>
@@ -271,11 +274,19 @@ const ServiceProvision = {
               <div class="m-label">전월 매출</div>
             </div>
           </div>
+          <div class="mini-chart-wrap">
+            <div class="mini-chart-label">
+              <span>월별 매출 추이</span>
+              <span style="color:${svc.color}">12개월</span>
+            </div>
+            <canvas id="svc-rev-${safeKey}"></canvas>
+          </div>
         </div>
-      `).join('');
+      `;
+      }).join('');
 
       return `
-        <div class="cat-accordion" data-category="${category}">
+        <div class="cat-accordion open" data-category="${category}">
           <div class="cat-accordion-header">
             <h4>${icon} ${category}</h4>
             <div class="cat-accordion-meta">
@@ -294,7 +305,7 @@ const ServiceProvision = {
 
     return `
       <div class="api-svc-header" style="margin-top:24px">
-        <h3>\ud83d\udcc1 카테고리별 상세 (클릭하여 펼치기)</h3>
+        <h3>\ud83d\udcc1 카테고리별 상세 <span style="font-size:.78rem; color:var(--text-muted); font-weight:400">(헤더 클릭으로 접기/펼치기)</span></h3>
       </div>
       <div>${accordions}</div>
     `;
@@ -383,6 +394,61 @@ const ServiceProvision = {
         },
       });
     }
+  },
+
+  // ===== Per-service mini revenue charts =====
+  renderServiceMiniCharts() {
+    const months = AppConfig.months;
+    const gridColor = '#3b4a6b33';
+
+    Object.values(this.serviceData).forEach(items => {
+      items.forEach(svc => {
+        const safeKey = svc.key.replace(/[^a-zA-Z0-9]/g, '_');
+        const canvas = this.select(`#svc-rev-${safeKey}`);
+        if (!canvas) return;
+
+        // Synthetic 12-month revenue trend with growth + noise
+        const monthlyAvg = svc.lastRevenue / 12;
+        const trend = months.map((_, idx) => {
+          const growth = 0.6 + 0.4 * (idx / 11);
+          const noise = 0.85 + this.random() * 0.3;
+          return Math.round(monthlyAvg * growth * noise);
+        });
+
+        new Chart(canvas, {
+          type: 'line',
+          data: {
+            labels: months,
+            datasets: [{
+              data: trend,
+              borderColor: svc.color,
+              backgroundColor: `${svc.color}22`,
+              fill: true,
+              tension: .4,
+              pointRadius: 0,
+              borderWidth: 2,
+            }],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                callbacks: {
+                  label: (ctx) => this.formatRevenueKrw(ctx.parsed.y),
+                },
+              },
+            },
+            scales: {
+              x: { display: false, grid: { display: false } },
+              y: { display: false, grid: { color: gridColor } },
+            },
+            elements: { line: { borderJoinStyle: 'round' } },
+          },
+        });
+      });
+    });
   },
 
   // ===== Accordion Toggle =====

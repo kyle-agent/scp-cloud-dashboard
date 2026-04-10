@@ -676,6 +676,27 @@
       font-size: .95rem;
     }
 
+    .mini-chart-wrap {
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px solid var(--border);
+    }
+
+    .mini-chart-label {
+      font-size: .65rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: .4px;
+      font-weight: 600;
+      margin-bottom: 4px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .mini-chart-wrap canvas {
+      max-height: 60px !important;
+    }
+
     /* ===== Responsive ===== */
     @media (max-width: 900px) {
       .compact-charts { grid-template-columns: 1fr; }

@@ -12,12 +12,12 @@ function renderTab2(){
  var r2i=rng2(42);
  function fmtN(v){if(v>=1e9)return'\u20a9'+(v/1e9).toFixed(1)+'B';if(v>=1e6)return'\u20a9'+(v/1e6).toFixed(1)+'M';return'\u20a9'+v.toFixed(0);}
 
- // Load accounts data
- fetch(C.fetchData('accounts')).then(function(d){window.ACCOUNTS=d;}).catch(function(){window.ACCOUNTS={
+ // Load accounts data (from ETL-generated data/accounts.json)
+ C.fetchData('accounts').then(function(d){window.ACCOUNTS=d;}).catch(function(){window.ACCOUNTS={
   totalAccounts:1287,newAccountsToday:3,newAccountsThisWeek:18,newAccountsThisMonth:87,
   lastMonthRevenue:18500000000,monthOverMonthGrowth:0.08,totalActiveInstances:5847,
   monthlyRevenueTrend:[12100,12500,13100,12800,13500,14200,14800,15500,15200,16100,16800,18500]
- };}).catch(function(){window.ACCOUNTS={totalAccounts:1287,newAccountsToday:3,newAccountsThisWeek:18,newAccountsThisMonth:87,lastMonthRevenue:18500000000,totalActiveInstances:5847,monthlyRevenueTrend:[12100,12500,13100,12800,13500,14200,14800,15500,15200,16100,16800,18500]};});
+ };});
 
  var months=C.MONTHS;
 

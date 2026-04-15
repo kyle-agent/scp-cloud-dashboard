@@ -1,0 +1,27 @@
+# Map dashboard data fields → Superset chart IDs.
+# Used by `generate_accounts.py --source superset`.
+#
+# To find a chart ID: open the chart in Superset and look at the URL —
+#   .../explore/?slice_id=42  →  the ID is 42.
+#
+# Each entry must document which JSON field in accounts.json it populates.
+
+accounts_summary:
+  chart_id: 0  # TODO
+  populates: [totalAccounts, newAccountsToday, newAccountsThisWeek, newAccountsThisMonth]
+
+monthly_revenue:
+  chart_id: 0  # TODO
+  populates: [monthlyRevenueTrend, lastMonthRevenue, monthOverMonthGrowth]
+
+category_revenue:
+  chart_id: 0  # TODO
+  populates: [categoryRevenue]
+
+per_service_stats:
+  chart_id: 0  # TODO
+  populates: [perService]   # { <serviceKey>: {tI, nM, nD, lastRev, instanceTrend, revenueTrend} }
+
+active_instances:
+  chart_id: 0  # TODO
+  populates: [totalActiveInstances, newInstancesToday]

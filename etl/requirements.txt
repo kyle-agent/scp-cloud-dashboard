@@ -1,0 +1,12 @@
+# Core
+SQLAlchemy>=2.0
+python-dotenv>=1.0
+PyYAML>=6.0
+
+# Pick the driver that matches the source DB:
+psycopg2-binary>=2.9   ; python_version >= "3.8"  # PostgreSQL
+# PyMySQL>=1.1                                     # MySQL/MariaDB
+# pyodbc>=5.0                                      # SQL Server
+
+# Superset API mode
+requests>=2.31

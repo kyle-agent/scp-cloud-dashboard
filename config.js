@@ -1,17 +1,27 @@
 // ======== config.js - Centralized configuration ========
+//
+// Data routing (Option D — hybrid):
+//   services  → static JSON   (manually curated catalog)
+//   metrics   → backend BFF   (FastAPI → OpenSearch, see ./backend)
+//   accounts  → static JSON   (regenerated daily by ./etl, see ./etl)
+//
+// Set BACKEND_URL to '' to fall back to local JSON for all three (dev mode).
 var AppConfig = {
-  // Base URL for data files (change to API endpoint when connecting to real backend)
-  // e.g., DATA_URL = '/api/dashboard' or 'https://api.samsungsdscloud.com/dashboard'
-  DATA_URL: '.',
+  // Where static JSON files live (services, accounts)
+  STATIC_URL: '.',
 
-  // Data file paths
+  // Where the BFF lives. Empty string = use local JSON for metrics too.
+  // Examples: '/api/dashboard', 'http://localhost:8000/api/dashboard'
+  BACKEND_URL: '',
+
+  // Per-file routing. `source` is either 'static' or 'backend'.
   DATA_FILES: {
-    services: 'data/services.json',
-    metrics: 'data/metrics.json',
-    accounts: 'data/accounts.json'
+    services: { source: 'static', path: 'data/services.json' },
+    metrics:  { source: 'backend', path: '/metrics', fallback: 'data/metrics.json' },
+    accounts: { source: 'static', path: 'data/accounts.json' }
   },
 
-  // Polling interval for live data (milliseconds)
+  // Polling interval for live data (milliseconds) — should match backend cache TTL
   POLL_INTERVAL: 60000,
 
   // Category configuration
@@ -40,10 +50,25 @@ var AppConfig = {
     return n.toString();
   },
 
+  // Helper: resolve a data file's URL based on its routing config
+  _resolveUrl: function(file) {
+    var cfg = this.DATA_FILES[file];
+    if(!cfg) throw new Error('Unknown data file: ' + file);
+    if(cfg.source === 'backend' && this.BACKEND_URL) {
+      return this.BACKEND_URL + cfg.path;
+    }
+    // static, or backend with no BACKEND_URL → fall back to local JSON
+    var localPath = cfg.fallback || cfg.path;
+    return this.STATIC_URL + '/' + localPath;
+  },
+
   // Helper: fetch JSON data
   fetchData: function(file) {
-    return fetch(this.DATA_URL + '/' + this.DATA_FILES[file])
-      .then(function(r) { return r.json(); });
+    var url = this._resolveUrl(file);
+    return fetch(url).then(function(r) {
+      if(!r.ok) throw new Error('HTTP ' + r.status + ' for ' + url);
+      return r.json();
+    });
   }
 };
 

@@ -2,7 +2,10 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
+      # Temporary: deploy from the setup branch until it is merged to main
+      - claude/github-pages-setup-2wnddn
   workflow_dispatch:
 
 permissions:

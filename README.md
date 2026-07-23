@@ -2,6 +2,8 @@
 
 Interactive operations dashboard for the Samsung Cloud Platform (SCP), providing real-time visibility into API health, service metrics, revenue analytics, and infrastructure monitoring.
 
+**Live demo:** https://kyle-agent.github.io/scp-cloud-dashboard/
+
 ## Features
 
 **Tab 1 - Service Status (서비스 현황)**
@@ -59,7 +61,9 @@ python3 -m http.server 8080
 # then open http://localhost:8080
 ```
 
-Or deploy to S3/GitHub Pages.
+## Deployment (GitHub Pages)
+
+The site deploys automatically to GitHub Pages via `.github/workflows/deploy-pages.yml` on every push to `main` (or manually via the Actions tab → "Deploy to GitHub Pages" → Run workflow). No build step is required — the repository root is served as-is.
 
 ## Technologies
 - Chart.js — interactive charts

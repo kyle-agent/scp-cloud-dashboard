@@ -55,9 +55,18 @@ const AppConfig = {
     return num.toString();
   },
 
+  // Loads from data/*.json over HTTP; falls back to the embedded copy in
+  // data/data.js when fetch is unavailable (opened directly via file://).
   async fetchData(fileKey) {
-    const url = `${this.dataUrl}/${this.dataFiles[fileKey]}`;
-    const response = await fetch(url);
-    return response.json();
+    if (window.location.protocol !== 'file:') {
+      try {
+        const url = `${this.dataUrl}/${this.dataFiles[fileKey]}`;
+        const response = await fetch(url);
+        if (response.ok) return await response.json();
+      } catch {
+        // fall through to embedded data
+      }
+    }
+    return window.EmbeddedData[fileKey];
   },
 };

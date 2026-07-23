@@ -30,10 +30,15 @@ scp-cloud-dashboard/
 ├── config.js           # Central configuration (colors, icons, data paths)
 ├── tab1.js             # Tab 1 logic (API health, trends)
 ├── tab2.js             # Tab 2 logic (provision, revenue)
-└── data/
-    ├── services.json   # Service catalog with health check URLs
-    ├── metrics.json    # API metrics (calls, P50/P99, error rates)
-    └── accounts.json   # Account & revenue statistics
+├── data/
+│   ├── services.json   # Service catalog with health check URLs
+│   ├── metrics.json    # API metrics (calls, P50/P99, error rates)
+│   ├── accounts.json   # Account & revenue statistics
+│   └── data.js         # Auto-generated embedded copy (for file:// / offline use)
+├── vendor/
+│   └── chart.umd.min.js  # Bundled Chart.js (no CDN needed)
+└── scripts/
+    └── embed-data.js   # Regenerates data/data.js from data/*.json
 ```
 
 ## Data Integration
@@ -55,11 +60,19 @@ DATA_URL: '/api/v1',    // your API backend
 
 ## Running
 
-Serve with any static server:
+**Option 1 — no server needed (ZIP download):**
+Download the repo ZIP (GitHub → Code → Download ZIP), extract it, and double-click `index.html`. Everything is bundled — data and Chart.js load locally, works fully offline.
+
+**Option 2 — static server:**
 ```bash
 python3 -m http.server 8080
 # then open http://localhost:8080
 ```
+
+> When editing `data/*.json`, regenerate the embedded copy used for local viewing:
+> ```bash
+> node scripts/embed-data.js
+> ```
 
 ## Deployment (GitHub Pages)
 
